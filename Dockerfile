@@ -1,20 +1,13 @@
-FROM node:alpine
+FROM node:12-alpine
 
-# set the working direction
-WORKDIR /app
+WORKDIR /usr/src/app
 
-# add `/app/node_modules/.bin` to $PATH
-ENV PATH /app/node_modules/.bin:$PATH
+COPY package*.json ./
+ENV NODE_ENV=production
+RUN npm ci
 
-# install app dependencies
-COPY package.json ./
+COPY . . 
 
-COPY package-lock.json ./
+RUN npm run build
 
-RUN npm install
-
-# add app
-COPY . ./
-
-# start app
-CMD ["npm", "start"]
+CMD [ "npm", "run", "start:prod" ]
