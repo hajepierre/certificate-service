@@ -124,7 +124,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], AppController.prototype, "generateGraduatesCertificates", null);
 AppController = __decorate([
-    (0, common_1.Controller)('api/v1/certificates'),
+    (0, common_1.Controller)('certificates'),
     __metadata("design:paramtypes", [app_service_1.AppService])
 ], AppController);
 exports.AppController = AppController;
