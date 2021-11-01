@@ -5,7 +5,7 @@ import { FirmCertificate } from './dtos/firm-certificate.dto';
 import { GraduateCertificate } from './dtos/graduate-certificate.dto';
 import { IndividualCertificate } from './dtos/individual-certificates.dto';
 
-@Controller('api/v1/certificates')
+@Controller('certificates')
 export class AppController {
   constructor(private readonly appService: AppService) { }
 
