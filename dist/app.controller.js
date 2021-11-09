@@ -20,40 +20,43 @@ let AppController = class AppController {
     constructor(appService) {
         this.appService = appService;
     }
-    getFirmCertificates(res, companyName, registrationNumber, councilMeetingDate, expiryDate, displine, signatureDate) {
+    getFirmCertificates(res, companyName, registrationNumber, councilMeetingDate, expiryDate, discipline, signatureDate, certificateNumber) {
         const dto = {
             companyName,
             registrationNumber,
             councilMeetingDate,
             expiryDate,
-            field: displine,
-            doneDate: signatureDate
+            field: discipline,
+            doneDate: signatureDate,
+            certificateNumber
         };
         this.appService.generatePracticingFirmCertificate(dto).then(buffer => {
             res.send(buffer);
         });
     }
-    generateIndividualCertificates(res, year, fullName, membershipClassName, registrationNumber, displine, expiryDate, signatureDate) {
+    async generateIndividualCertificates(res, year, fullName, membershipClassName, registrationNumber, discipline, expiryDate, signatureDate, certificateNumber) {
         const dto = {
             year,
             fullName,
             membershipType: membershipClassName,
-            field: displine,
+            field: discipline,
             expiryDate,
             doneDate: signatureDate,
-            registrationNumber
+            registrationNumber,
+            certificateNumber
         };
         this.appService.generatePracticingIndividualCertificate(dto).then(buffer => {
             res.send(buffer);
         });
     }
-    generateGraduatesCertificates(res, year, fullName, membershipClassName, displine, signatureDate) {
+    generateGraduatesCertificates(res, year, fullName, membershipClassName, discipline, signatureDate, certificateNumber) {
         const dto = {
             year,
             fullName,
             membershipType: membershipClassName,
-            field: displine,
-            doneDate: signatureDate
+            field: discipline,
+            doneDate: signatureDate,
+            certificateNumber
         };
         this.appService.generateNonPracticingCertificate(dto).then(buffer => {
             res.send(buffer);
@@ -68,17 +71,18 @@ __decorate([
     (0, swagger_1.ApiQuery)({ name: 'registrationNumber', required: true, description: 'Registration Number' }),
     (0, swagger_1.ApiQuery)({ name: 'councilMeetingDate', required: true, description: 'Council Meeting Date' }),
     (0, swagger_1.ApiQuery)({ name: 'expiryDate', required: true, description: 'Expiry Date' }),
-    (0, swagger_1.ApiQuery)({ name: 'displine', required: true, description: 'Discipline' }),
+    (0, swagger_1.ApiQuery)({ name: 'discipline', required: true, description: 'Discipline' }),
     (0, swagger_1.ApiQuery)({ name: 'signatureDate', required: true, description: 'Certificate signature date' }),
     __param(0, (0, common_1.Res)()),
     __param(1, (0, common_1.Query)('companyName')),
     __param(2, (0, common_1.Query)('registrationNumber')),
     __param(3, (0, common_1.Query)('councilMeetingDate')),
     __param(4, (0, common_1.Query)('expiryDate')),
-    __param(5, (0, common_1.Query)('displine')),
+    __param(5, (0, common_1.Query)('discipline')),
     __param(6, (0, common_1.Query)('signatureDate')),
+    __param(7, (0, common_1.Query)('certificateNumber')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String, String, String, String, String, String]),
+    __metadata("design:paramtypes", [Object, String, String, String, String, String, String, String]),
     __metadata("design:returntype", void 0)
 ], AppController.prototype, "getFirmCertificates", null);
 __decorate([
@@ -89,7 +93,7 @@ __decorate([
     (0, swagger_1.ApiQuery)({ name: 'fullName', required: true, description: 'Member full Name starting with Title' }),
     (0, swagger_1.ApiQuery)({ name: 'membershipClassName', required: true, description: 'Membership Class Name' }),
     (0, swagger_1.ApiQuery)({ name: 'registrationNumber', required: true, description: 'Registration Number' }),
-    (0, swagger_1.ApiQuery)({ name: 'displine', required: true, description: 'Discipline' }),
+    (0, swagger_1.ApiQuery)({ name: 'discipline', required: true, description: 'Discipline' }),
     (0, swagger_1.ApiQuery)({ name: 'expiryDate', required: true, description: 'Expiry Date' }),
     (0, swagger_1.ApiQuery)({ name: 'signatureDate', required: true, description: 'Certificate signature date' }),
     __param(0, (0, common_1.Res)()),
@@ -97,12 +101,13 @@ __decorate([
     __param(2, (0, common_1.Query)('fullName')),
     __param(3, (0, common_1.Query)('membershipClassName')),
     __param(4, (0, common_1.Query)('registrationNumber')),
-    __param(5, (0, common_1.Query)('displine')),
+    __param(5, (0, common_1.Query)('discipline')),
     __param(6, (0, common_1.Query)('expiryDate')),
     __param(7, (0, common_1.Query)('signatureDate')),
+    __param(8, (0, common_1.Query)('certificateNumber')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String, String, String, String, String, String, String]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:paramtypes", [Object, String, String, String, String, String, String, String, String]),
+    __metadata("design:returntype", Promise)
 ], AppController.prototype, "generateIndividualCertificates", null);
 __decorate([
     (0, common_1.Get)('graduates'),
@@ -111,16 +116,17 @@ __decorate([
     (0, swagger_1.ApiQuery)({ name: 'year', required: true, description: 'Certified Year' }),
     (0, swagger_1.ApiQuery)({ name: 'fullName', required: true, description: 'Member full Name starting with Title' }),
     (0, swagger_1.ApiQuery)({ name: 'membershipClassName', required: true, description: 'Membership Class Name' }),
-    (0, swagger_1.ApiQuery)({ name: 'displine', required: true, description: 'Discipline' }),
+    (0, swagger_1.ApiQuery)({ name: 'discipline', required: true, description: 'Discipline' }),
     (0, swagger_1.ApiQuery)({ name: 'signatureDate', required: true, description: 'Certificate signature date' }),
     __param(0, (0, common_1.Res)()),
     __param(1, (0, common_1.Query)('year')),
     __param(2, (0, common_1.Query)('fullName')),
     __param(3, (0, common_1.Query)('membershipClassName')),
-    __param(4, (0, common_1.Query)('displine')),
+    __param(4, (0, common_1.Query)('discipline')),
     __param(5, (0, common_1.Query)('signatureDate')),
+    __param(6, (0, common_1.Query)('certificateNumber')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String, String, String, String, String]),
+    __metadata("design:paramtypes", [Object, String, String, String, String, String, String]),
     __metadata("design:returntype", void 0)
 ], AppController.prototype, "generateGraduatesCertificates", null);
 AppController = __decorate([

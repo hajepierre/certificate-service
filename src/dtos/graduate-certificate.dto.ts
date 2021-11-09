@@ -16,4 +16,7 @@ export class GraduateCertificate {
 
     @ApiProperty({  description: 'Signature Date' })
     doneDate: string;
+
+    @ApiProperty({  description: 'Certificate Number' })
+    certificateNumber: string;
 }

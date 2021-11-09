@@ -1,6 +1,8 @@
-import { Controller, Get, Post, Query, Res, UsePipes, ValidationPipe } from '@nestjs/common';
-import { ApiOperation, ApiQuery } from '@nestjs/swagger';
+import { AckResponseDTO } from './dtos/ack.dto';
+import { Body, Controller, Get, Post, Query, Res, UsePipes, ValidationPipe } from '@nestjs/common';
+import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { AppService } from './app.service';
+import { FileDTO } from './dtos/file.dto';
 import { FirmCertificate } from './dtos/firm-certificate.dto';
 import { GraduateCertificate } from './dtos/graduate-certificate.dto';
 import { IndividualCertificate } from './dtos/individual-certificates.dto';
@@ -16,23 +18,26 @@ export class AppController {
   @ApiQuery({ name: 'registrationNumber', required: true, description: 'Registration Number' })
   @ApiQuery({ name: 'councilMeetingDate', required: true, description: 'Council Meeting Date' })
   @ApiQuery({ name: 'expiryDate', required: true, description: 'Expiry Date' })
-  @ApiQuery({ name: 'displine', required: true, description: 'Discipline' })
+  @ApiQuery({ name: 'discipline', required: true, description: 'Discipline' })
   @ApiQuery({ name: 'signatureDate', required: true, description: 'Certificate signature date' })
+  @ApiQuery({ name: 'certificateNumber', required: true, description: 'Certificate number' })
   getFirmCertificates(@Res() res,
     @Query('companyName') companyName: string,
     @Query('registrationNumber') registrationNumber: string,
     @Query('councilMeetingDate') councilMeetingDate: string,
     @Query('expiryDate') expiryDate: string,
-    @Query('displine') displine: string,
-    @Query('signatureDate') signatureDate: string
+    @Query('discipline') discipline: string,
+    @Query('signatureDate') signatureDate: string,
+    @Query('certificateNumber') certificateNumber: string
   ) {
     const dto: FirmCertificate = {
       companyName,
       registrationNumber,
       councilMeetingDate,
       expiryDate,
-      field: displine,
-      doneDate: signatureDate
+      field: discipline,
+      doneDate: signatureDate,
+      certificateNumber
     }
     this.appService.generatePracticingFirmCertificate(dto).then(buffer => {
       res.send(buffer)
@@ -46,25 +51,28 @@ export class AppController {
   @ApiQuery({ name: 'fullName', required: true, description: 'Member full Name starting with Title' })
   @ApiQuery({ name: 'membershipClassName', required: true, description: 'Membership Class Name' })
   @ApiQuery({ name: 'registrationNumber', required: true, description: 'Registration Number' })
-  @ApiQuery({ name: 'displine', required: true, description: 'Discipline' })
+  @ApiQuery({ name: 'discipline', required: true, description: 'Discipline' })
   @ApiQuery({ name: 'expiryDate', required: true, description: 'Expiry Date' })
   @ApiQuery({ name: 'signatureDate', required: true, description: 'Certificate signature date' })
-  generateIndividualCertificates(@Res() res,
+  @ApiQuery({ name: 'certificateNumber', required: true, description: 'Certificate number' })
+  async generateIndividualCertificates(@Res() res,
     @Query('year') year: string,
     @Query('fullName') fullName: string,
     @Query('membershipClassName') membershipClassName: string,
     @Query('registrationNumber') registrationNumber: string,
-    @Query('displine') displine: string,
+    @Query('discipline') discipline: string,
     @Query('expiryDate') expiryDate: string,
-    @Query('signatureDate') signatureDate: string) {
+    @Query('signatureDate') signatureDate: string,
+    @Query('certificateNumber') certificateNumber: string) {
     const dto: IndividualCertificate = {
       year,
       fullName,
       membershipType: membershipClassName,
-      field: displine,
+      field: discipline,
       expiryDate,
       doneDate: signatureDate,
-      registrationNumber
+      registrationNumber,
+      certificateNumber
     }
     this.appService.generatePracticingIndividualCertificate(dto).then(buffer => {
       res.send(buffer)
@@ -77,23 +85,49 @@ export class AppController {
   @ApiQuery({ name: 'year', required: true, description: 'Certified Year' })
   @ApiQuery({ name: 'fullName', required: true, description: 'Member full Name starting with Title' })
   @ApiQuery({ name: 'membershipClassName', required: true, description: 'Membership Class Name' })
-  @ApiQuery({ name: 'displine', required: true, description: 'Discipline' })
+  @ApiQuery({ name: 'discipline', required: true, description: 'Discipline' })
   @ApiQuery({ name: 'signatureDate', required: true, description: 'Certificate signature date' })
+  @ApiQuery({ name: 'certificateNumber', required: true, description: 'Certificate number' })
   generateGraduatesCertificates(@Res() res,
     @Query('year') year: string,
     @Query('fullName') fullName: string,
     @Query('membershipClassName') membershipClassName: string,
-    @Query('displine') displine: string,
-    @Query('signatureDate') signatureDate: string) {
+    @Query('discipline') discipline: string,
+    @Query('signatureDate') signatureDate: string,
+    @Query('certificateNumber') certificateNumber: string) {
     const dto: GraduateCertificate = {
       year,
       fullName,
       membershipType: membershipClassName,
-      field: displine,
-      doneDate: signatureDate
+      field: discipline,
+      doneDate: signatureDate,
+      certificateNumber
     }
     this.appService.generateNonPracticingCertificate(dto).then(buffer => {
       res.send(buffer)
     })
+  }
+
+  @Get('templates')
+  @UsePipes(new ValidationPipe())
+  @ApiResponse({
+    status: 200,
+    description: 'List of certificate templates',
+    type: [FileDTO]
+  })
+  getTemplates() {
+    // to be implemented shortly
+    return []
+  }
+
+  @Post('templates/upload')
+  @UsePipes(new ValidationPipe())
+  @ApiResponse({
+    status: 200,
+    description: 'List of certificate templates',
+    type: [FileDTO]
+  })
+  uploadTemplate(@Body() dto: FileDTO): Promise<AckResponseDTO> {
+    return null;
   }
 }

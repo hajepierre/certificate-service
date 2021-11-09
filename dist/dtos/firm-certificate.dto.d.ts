@@ -5,4 +5,5 @@ export declare class FirmCertificate {
     councilMeetingDate: string;
     field: string;
     doneDate: string;
+    certificateNumber: string;
 }

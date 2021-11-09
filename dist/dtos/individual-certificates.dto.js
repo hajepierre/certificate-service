@@ -41,5 +41,9 @@ __decorate([
     (0, swagger_1.ApiProperty)({ description: 'Signature Date' }),
     __metadata("design:type", String)
 ], IndividualCertificate.prototype, "doneDate", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'Certificate Number' }),
+    __metadata("design:type", String)
+], IndividualCertificate.prototype, "certificateNumber", void 0);
 exports.IndividualCertificate = IndividualCertificate;
 //# sourceMappingURL=individual-certificates.dto.js.map

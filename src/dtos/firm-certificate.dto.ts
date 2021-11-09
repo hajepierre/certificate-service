@@ -18,4 +18,7 @@ export class FirmCertificate {
 
     @ApiProperty({  description: 'Signature Date' })
     doneDate: string;
+
+    @ApiProperty({  description: 'Certificate Number' })
+    certificateNumber: string;
 }

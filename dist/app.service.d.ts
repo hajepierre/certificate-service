@@ -3,7 +3,10 @@ import { IndividualCertificate } from './dtos/individual-certificates.dto';
 import { GraduateCertificate } from './dtos/graduate-certificate.dto';
 export declare class AppService {
     color: string;
+    chairmanSignaure: any;
+    registrarSignature: any;
     generatePracticingIndividualCertificate(dto: IndividualCertificate): Promise<unknown>;
     generatePracticingFirmCertificate(dto: FirmCertificate): Promise<unknown>;
     generateNonPracticingCertificate(dto: GraduateCertificate): Promise<unknown>;
+    generateQR(docNumber: string): any;
 }

@@ -4,4 +4,5 @@ export declare class GraduateCertificate {
     membershipType: string;
     field: string;
     doneDate: string;
+    certificateNumber: string;
 }

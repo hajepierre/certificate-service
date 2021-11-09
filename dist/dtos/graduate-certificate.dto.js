@@ -33,5 +33,9 @@ __decorate([
     (0, swagger_1.ApiProperty)({ description: 'Signature Date' }),
     __metadata("design:type", String)
 ], GraduateCertificate.prototype, "doneDate", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'Certificate Number' }),
+    __metadata("design:type", String)
+], GraduateCertificate.prototype, "certificateNumber", void 0);
 exports.GraduateCertificate = GraduateCertificate;
 //# sourceMappingURL=graduate-certificate.dto.js.map

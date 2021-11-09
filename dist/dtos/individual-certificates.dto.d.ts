@@ -6,4 +6,5 @@ export declare class IndividualCertificate {
     registrationNumber: string;
     expiryDate: string;
     doneDate: string;
+    certificateNumber: string;
 }

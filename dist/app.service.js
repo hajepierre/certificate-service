@@ -11,18 +11,22 @@ const common_1 = require("@nestjs/common");
 const PDFDocument = require("pdfkit");
 const fs = require("fs");
 const uuid_1 = require("uuid");
+const qr = require("qr-image");
 let AppService = class AppService {
     constructor() {
         this.color = '#0066FF';
     }
     generatePracticingIndividualCertificate(dto) {
-        return new Promise((resolve) => {
+        return new Promise(async (resolve) => {
             const { year, fullName, membershipType, field, registrationNumber, expiryDate, doneDate } = dto;
+            const qrBuffer = await this.generateQR(dto.certificateNumber);
             const doc = new PDFDocument({ autoFirstPage: false });
             const id = (0, uuid_1.v4)().replace(/-/g, '');
             const fileName = `public/certificate_${id}.pdf`;
             doc.pipe(fs.createWriteStream(fileName));
             const img = doc.openImage('public/templates/individual_template.jpg');
+            this.chairmanSignaure = doc.openImage('public/templates/chairman.png');
+            this.registrarSignature = doc.openImage('public/templates/registrar.png');
             doc.addPage({
                 size: [img.width, img.height],
             });
@@ -38,6 +42,10 @@ let AppService = class AppService {
                 .text(registrationNumber, 1848, 1395);
             doc.fillColor(this.color).fontSize(50).text(expiryDate, 1895, 1740);
             doc.fillColor(this.color).fontSize(60).text(doneDate, 1910, 1895);
+            doc
+                .image(qrBuffer, 1630, 1995, { fit: [400, 400] })
+                .rect(1630, 1995, 400, 400)
+                .stroke();
             doc.end();
             fs.readFile(fileName, (error, data) => {
                 if (error) {
@@ -56,8 +64,9 @@ let AppService = class AppService {
         });
     }
     generatePracticingFirmCertificate(dto) {
-        return new Promise((resolve) => {
+        return new Promise(async (resolve) => {
             const { companyName, registrationNumber, expiryDate, councilMeetingDate, field, doneDate } = dto;
+            const qrBuffer = await this.generateQR(dto.certificateNumber);
             const doc = new PDFDocument({ autoFirstPage: false });
             const id = (0, uuid_1.v4)().replace(/-/g, '');
             const fileName = `public/certificate_${id}.pdf`;
@@ -83,6 +92,10 @@ let AppService = class AppService {
                 .text(councilMeetingDate, 1400, 1730);
             doc.fillColor(this.color).fontSize(70).text(field, 2285, 1725);
             doc.fillColor(this.color).fontSize(60).text(doneDate, 1920, 1895);
+            doc
+                .image(qrBuffer, 1630, 1995, { fit: [400, 400] })
+                .rect(1630, 1995, 400, 400)
+                .stroke();
             doc.end();
             fs.readFile(fileName, (error, data) => {
                 if (error) {
@@ -101,13 +114,14 @@ let AppService = class AppService {
         });
     }
     generateNonPracticingCertificate(dto) {
-        return new Promise((resolve) => {
+        return new Promise(async (resolve) => {
             const { year, fullName, membershipType, field, doneDate } = dto;
+            const qrBuffer = await this.generateQR(dto.certificateNumber);
             const doc = new PDFDocument({ autoFirstPage: false });
             const id = (0, uuid_1.v4)().replace(/-/g, '');
             const fileName = `public/certificate_${id}.pdf`;
             doc.pipe(fs.createWriteStream(fileName));
-            const img = doc.openImage('public/templates/non_practing_template.jpg');
+            const img = doc.openImage('public/templates/non_practicing_template.jpg');
             doc.addPage({
                 size: [img.width, img.height],
             });
@@ -133,6 +147,10 @@ let AppService = class AppService {
                 fillColor(this.color)
                 .fontSize(60)
                 .text(doneDate, 1910, 1895);
+            doc
+                .image(qrBuffer, 1630, 1995, { fit: [400, 400] })
+                .rect(1630, 1995, 400, 400)
+                .stroke();
             doc.end();
             fs.readFile(fileName, (error, data) => {
                 if (error) {
@@ -148,6 +166,13 @@ let AppService = class AppService {
                     resolve(data);
                 }
             });
+        });
+    }
+    generateQR(docNumber) {
+        return qr.imageSync(`${process.env.CERT_VERIFY}/${docNumber}/check`, {
+            type: 'png',
+            ec_level: 'H',
+            margin: 1,
         });
     }
 };
