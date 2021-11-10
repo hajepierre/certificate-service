@@ -115,9 +115,8 @@ export class AppController {
     description: 'List of certificate templates',
     type: [FileDTO]
   })
-  getTemplates() {
-    // to be implemented shortly
-    return []
+  async getTemplates(): Promise<FileDTO[]> {
+    return await this.appService.getTemplates()
   }
 
   @Post('templates/upload')
@@ -125,9 +124,9 @@ export class AppController {
   @ApiResponse({
     status: 200,
     description: 'List of certificate templates',
-    type: [FileDTO]
+    type: AckResponseDTO
   })
-  uploadTemplate(@Body() dto: FileDTO): Promise<AckResponseDTO> {
-    return null;
+  async uploadTemplate(@Body() dto: FileDTO): Promise<AckResponseDTO> {
+    return await this.appService.uploadTemplate(dto)
   }
 }

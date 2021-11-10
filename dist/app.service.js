@@ -15,6 +15,11 @@ const qr = require("qr-image");
 let AppService = class AppService {
     constructor() {
         this.color = '#0066FF';
+        this.templates = {
+            individual: 'individual_template.jpg',
+            firm: 'firm_template.jpg',
+            graduate: 'non_practicing_template.jpg'
+        };
     }
     generatePracticingIndividualCertificate(dto) {
         return new Promise(async (resolve) => {
@@ -25,8 +30,6 @@ let AppService = class AppService {
             const fileName = `public/certificate_${id}.pdf`;
             doc.pipe(fs.createWriteStream(fileName));
             const img = doc.openImage('public/templates/individual_template.jpg');
-            this.chairmanSignaure = doc.openImage('public/templates/chairman.png');
-            this.registrarSignature = doc.openImage('public/templates/registrar.png');
             doc.addPage({
                 size: [img.width, img.height],
             });
@@ -174,6 +177,62 @@ let AppService = class AppService {
             ec_level: 'H',
             margin: 1,
         });
+    }
+    async getTemplates() {
+        const result = [];
+        const individualFileText = await this.fileToBase64('public/templates/originals/individual_template.jpg');
+        const firmFileText = await this.fileToBase64('public/templates/originals/firm_template.jpg');
+        const graduageFileText = await this.fileToBase64('public/templates/originals/non_practicing_template.jpg');
+        const individualTemplate = {
+            fileText: individualFileText,
+            type: 'jpg',
+            name: 'individual_template.jpg',
+            changed: true,
+            membershipType: 'individual'
+        };
+        const firmTemplate = {
+            fileText: firmFileText,
+            type: 'jpg',
+            name: 'firm_template.jpg',
+            changed: true,
+            membershipType: 'firm'
+        };
+        const graduateTemplate = {
+            fileText: graduageFileText,
+            type: 'jpg',
+            name: 'non_practicing_template.jpg',
+            changed: true,
+            membershipType: 'graduate'
+        };
+        result.push(individualTemplate);
+        result.push(firmTemplate);
+        result.push(graduateTemplate);
+        return result;
+    }
+    async uploadTemplate(dto) {
+        let message = 'Unknown membership type';
+        let status = 'FAILED';
+        const fileName = this.templates[dto.membershipType.toLocaleLowerCase()];
+        if (fileName) {
+            try {
+                this.decodeAndSave(dto.fileText, `public/templates/${fileName}`);
+                message = 'Template is upload successfully';
+                status = 'SUCCESS';
+            }
+            catch (error) {
+                message = error;
+            }
+        }
+        return { message, status };
+    }
+    async fileToBase64(fileName) {
+        var bitmap = await fs.readFileSync(fileName);
+        return Buffer.from(bitmap).toString('base64');
+    }
+    decodeAndSave(base64str, fileName) {
+        var bitmap = Buffer.from(base64str, 'base64');
+        fs.writeFileSync(fileName, bitmap);
+        console.log('******** File created from base64 encoded string ********');
     }
 };
 AppService = __decorate([

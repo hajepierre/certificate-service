@@ -1,3 +1,4 @@
+import { FileDTO } from './dtos/file.dto';
 import { Injectable } from '@nestjs/common';
 
 import * as PDFDocument from 'pdfkit';
@@ -7,13 +8,17 @@ import { FirmCertificate } from './dtos/firm-certificate.dto';
 import { IndividualCertificate } from './dtos/individual-certificates.dto';
 import { GraduateCertificate } from './dtos/graduate-certificate.dto';
 import * as qr from 'qr-image';
+import { AckResponseDTO } from './dtos/ack.dto';
 
 @Injectable()
 export class AppService {
   color = '#0066FF';
 
-  chairmanSignaure;
-  registrarSignature;
+  templates = {
+    individual: 'individual_template.jpg',
+    firm: 'firm_template.jpg',
+    graduate: 'non_practicing_template.jpg'
+  }
 
   generatePracticingIndividualCertificate(dto: IndividualCertificate) {
     return new Promise(async (resolve) => {
@@ -27,10 +32,6 @@ export class AppService {
 
       doc.pipe(fs.createWriteStream(fileName));
       const img = doc.openImage('public/templates/individual_template.jpg');
-
-      // signature images
-      this.chairmanSignaure = doc.openImage('public/templates/chairman.png');
-      this.registrarSignature = doc.openImage('public/templates/registrar.png');
 
       doc.addPage({
         size: [img.width, img.height],
@@ -68,17 +69,6 @@ export class AppService {
         .image(qrBuffer, 1630, 1995, { fit: [400, 400] })
         .rect(1630, 1995, 400, 400)
         .stroke();
-
-      // Add chairman signature
-      // doc
-      //   .image(this.chairmanSignaure, 700, 2250)
-
-      // Add registrar signature
-      // doc
-      //   .image(this.chairmanSignaure, 2700, 2250)
-
-      // doc
-      //   .image(this.registrarSignature, 1500, 1500)
 
       doc.end();
 
@@ -245,5 +235,77 @@ export class AppService {
       ec_level: 'H',
       margin: 1,
     });
+  }
+
+  async getTemplates(): Promise<FileDTO[]> {
+    const result: FileDTO[] = [];
+
+    const individualFileText = await this.fileToBase64('public/templates/originals/individual_template.jpg')
+    const firmFileText = await this.fileToBase64('public/templates/originals/firm_template.jpg')
+    const graduageFileText = await this.fileToBase64('public/templates/originals/non_practicing_template.jpg')
+
+    const individualTemplate: FileDTO = {
+      fileText: individualFileText,
+      type: 'jpg',
+      name: 'individual_template.jpg',
+      changed: true,
+      membershipType: 'individual'
+    }
+
+    const firmTemplate: FileDTO = {
+      fileText: firmFileText,
+      type: 'jpg',
+      name: 'firm_template.jpg',
+      changed: true,
+      membershipType: 'firm'
+    }
+
+    const graduateTemplate: FileDTO = {
+      fileText: graduageFileText,
+      type: 'jpg',
+      name: 'non_practicing_template.jpg',
+      changed: true,
+      membershipType: 'graduate'
+    }
+
+    result.push(individualTemplate)
+    result.push(firmTemplate)
+    result.push(graduateTemplate)
+
+    return result;
+  }
+
+
+  async uploadTemplate(dto: FileDTO): Promise<AckResponseDTO> {
+    let message = 'Unknown membership type';
+    let status = 'FAILED';
+    const fileName = this.templates[dto.membershipType.toLocaleLowerCase()];
+
+    if (fileName) {
+      try {
+        this.decodeAndSave(dto.fileText, `public/templates/${fileName}`)
+        message = 'Template is upload successfully'
+        status = 'SUCCESS'
+      } catch (error) {
+        message = error;
+      }
+    }
+
+    return { message, status };
+  }
+
+  private async fileToBase64(fileName: string) {
+    // read binary data
+    var bitmap = await fs.readFileSync(fileName);
+    // convert binary data to base64 encoded string
+    return Buffer.from(bitmap).toString('base64');
+  }
+
+
+  private decodeAndSave(base64str: string, fileName: string) {
+    var bitmap = Buffer.from(base64str, 'base64');
+    // write buffer to file
+    fs.writeFileSync(fileName, bitmap);
+    console.log('******** File created from base64 encoded string ********');
   }
 }

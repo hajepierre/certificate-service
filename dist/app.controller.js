@@ -13,9 +13,11 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppController = void 0;
+const ack_dto_1 = require("./dtos/ack.dto");
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const app_service_1 = require("./app.service");
+const file_dto_1 = require("./dtos/file.dto");
 let AppController = class AppController {
     constructor(appService) {
         this.appService = appService;
@@ -62,6 +64,12 @@ let AppController = class AppController {
             res.send(buffer);
         });
     }
+    async getTemplates() {
+        return await this.appService.getTemplates();
+    }
+    async uploadTemplate(dto) {
+        return await this.appService.uploadTemplate(dto);
+    }
 };
 __decorate([
     (0, common_1.Get)('firm'),
@@ -73,6 +81,7 @@ __decorate([
     (0, swagger_1.ApiQuery)({ name: 'expiryDate', required: true, description: 'Expiry Date' }),
     (0, swagger_1.ApiQuery)({ name: 'discipline', required: true, description: 'Discipline' }),
     (0, swagger_1.ApiQuery)({ name: 'signatureDate', required: true, description: 'Certificate signature date' }),
+    (0, swagger_1.ApiQuery)({ name: 'certificateNumber', required: true, description: 'Certificate number' }),
     __param(0, (0, common_1.Res)()),
     __param(1, (0, common_1.Query)('companyName')),
     __param(2, (0, common_1.Query)('registrationNumber')),
@@ -96,6 +105,7 @@ __decorate([
     (0, swagger_1.ApiQuery)({ name: 'discipline', required: true, description: 'Discipline' }),
     (0, swagger_1.ApiQuery)({ name: 'expiryDate', required: true, description: 'Expiry Date' }),
     (0, swagger_1.ApiQuery)({ name: 'signatureDate', required: true, description: 'Certificate signature date' }),
+    (0, swagger_1.ApiQuery)({ name: 'certificateNumber', required: true, description: 'Certificate number' }),
     __param(0, (0, common_1.Res)()),
     __param(1, (0, common_1.Query)('year')),
     __param(2, (0, common_1.Query)('fullName')),
@@ -118,6 +128,7 @@ __decorate([
     (0, swagger_1.ApiQuery)({ name: 'membershipClassName', required: true, description: 'Membership Class Name' }),
     (0, swagger_1.ApiQuery)({ name: 'discipline', required: true, description: 'Discipline' }),
     (0, swagger_1.ApiQuery)({ name: 'signatureDate', required: true, description: 'Certificate signature date' }),
+    (0, swagger_1.ApiQuery)({ name: 'certificateNumber', required: true, description: 'Certificate number' }),
     __param(0, (0, common_1.Res)()),
     __param(1, (0, common_1.Query)('year')),
     __param(2, (0, common_1.Query)('fullName')),
@@ -129,6 +140,31 @@ __decorate([
     __metadata("design:paramtypes", [Object, String, String, String, String, String, String]),
     __metadata("design:returntype", void 0)
 ], AppController.prototype, "generateGraduatesCertificates", null);
+__decorate([
+    (0, common_1.Get)('templates'),
+    (0, common_1.UsePipes)(new common_1.ValidationPipe()),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'List of certificate templates',
+        type: [file_dto_1.FileDTO]
+    }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "getTemplates", null);
+__decorate([
+    (0, common_1.Post)('templates/upload'),
+    (0, common_1.UsePipes)(new common_1.ValidationPipe()),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'List of certificate templates',
+        type: ack_dto_1.AckResponseDTO
+    }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [file_dto_1.FileDTO]),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "uploadTemplate", null);
 AppController = __decorate([
     (0, common_1.Controller)('certificates'),
     __metadata("design:paramtypes", [app_service_1.AppService])
