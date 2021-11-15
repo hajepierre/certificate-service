@@ -230,7 +230,7 @@ export class AppService {
   }
 
   generateQR(docNumber: string) {
-    return qr.imageSync(`${process.env.CERT_VERIFY}/${docNumber}/check`, {
+    return qr.imageSync(`${process.env.CERT_VERIFY}${docNumber}`, {
       type: 'png',
       ec_level: 'H',
       margin: 1,
