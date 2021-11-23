@@ -20,6 +20,21 @@ export class AppService {
     graduate: 'non_practicing_template.jpg'
   }
 
+  files = [
+    {
+      name: 'individual_template.jpg',
+      membershipType: 'individual'
+    },
+    {
+      name: 'firm_template.jpg',
+      membershipType: 'firm'
+    },
+    {
+      name: 'non_practicing_template.jpg',
+      membershipType: 'graduate'
+    }
+  ]
+
   generatePracticingIndividualCertificate(dto: IndividualCertificate) {
     return new Promise(async (resolve) => {
       const { year, fullName, membershipType, field, registrationNumber, expiryDate, doneDate } = dto;
@@ -240,40 +255,37 @@ export class AppService {
   async getTemplates(): Promise<FileDTO[]> {
     const result: FileDTO[] = [];
 
-    const individualFileText = await this.fileToBase64('public/templates/originals/individual_template.jpg')
-    const firmFileText = await this.fileToBase64('public/templates/originals/firm_template.jpg')
-    const graduageFileText = await this.fileToBase64('public/templates/originals/non_practicing_template.jpg')
-
-    const individualTemplate: FileDTO = {
-      fileText: individualFileText,
-      type: 'jpg',
-      name: 'individual_template.jpg',
-      changed: true,
-      membershipType: 'individual'
+    for(const f of this.files){
+      const {name, membershipType}=f;
+      result.push({
+        fileText: '',
+        type: 'jpg',
+        name,
+        changed: false,
+        membershipType
+      })
     }
-
-    const firmTemplate: FileDTO = {
-      fileText: firmFileText,
-      type: 'jpg',
-      name: 'firm_template.jpg',
-      changed: true,
-      membershipType: 'firm'
-    }
-
-    const graduateTemplate: FileDTO = {
-      fileText: graduageFileText,
-      type: 'jpg',
-      name: 'non_practicing_template.jpg',
-      changed: true,
-      membershipType: 'graduate'
-    }
-
-    result.push(individualTemplate)
-    result.push(firmTemplate)
-    result.push(graduateTemplate)
-
     return result;
   }
+
+  async getTemplate(name: string): Promise<FileDTO | AckResponseDTO> {
+    const fileName = this.templates[name.toLocaleLowerCase()];
+    if (fileName) {
+      const fileText = await this.fileToBase64(`public/templates/originals/${fileName}`)
+      return {
+        fileText,
+        type: 'jpg',
+        name: fileName,
+        changed: false,
+        membershipType: name
+      }
+    }
+    return {
+      message: 'Unknown membership type',
+      status: 'FAILED'
+    }
+  }
+
 
 
   async uploadTemplate(dto: FileDTO): Promise<AckResponseDTO> {

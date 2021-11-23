@@ -10,11 +10,16 @@ export declare class AppService {
         firm: string;
         graduate: string;
     };
+    files: {
+        name: string;
+        membershipType: string;
+    }[];
     generatePracticingIndividualCertificate(dto: IndividualCertificate): Promise<unknown>;
     generatePracticingFirmCertificate(dto: FirmCertificate): Promise<unknown>;
     generateNonPracticingCertificate(dto: GraduateCertificate): Promise<unknown>;
     generateQR(docNumber: string): any;
     getTemplates(): Promise<FileDTO[]>;
+    getTemplate(name: string): Promise<FileDTO | AckResponseDTO>;
     uploadTemplate(dto: FileDTO): Promise<AckResponseDTO>;
     private fileToBase64;
     private decodeAndSave;

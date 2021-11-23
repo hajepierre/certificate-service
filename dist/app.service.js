@@ -20,6 +20,20 @@ let AppService = class AppService {
             firm: 'firm_template.jpg',
             graduate: 'non_practicing_template.jpg'
         };
+        this.files = [
+            {
+                name: 'individual_template.jpg',
+                membershipType: 'individual'
+            },
+            {
+                name: 'firm_template.jpg',
+                membershipType: 'firm'
+            },
+            {
+                name: 'non_practicing_template.jpg',
+                membershipType: 'graduate'
+            }
+        ];
     }
     generatePracticingIndividualCertificate(dto) {
         return new Promise(async (resolve) => {
@@ -180,34 +194,34 @@ let AppService = class AppService {
     }
     async getTemplates() {
         const result = [];
-        const individualFileText = await this.fileToBase64('public/templates/originals/individual_template.jpg');
-        const firmFileText = await this.fileToBase64('public/templates/originals/firm_template.jpg');
-        const graduageFileText = await this.fileToBase64('public/templates/originals/non_practicing_template.jpg');
-        const individualTemplate = {
-            fileText: individualFileText,
-            type: 'jpg',
-            name: 'individual_template.jpg',
-            changed: true,
-            membershipType: 'individual'
-        };
-        const firmTemplate = {
-            fileText: firmFileText,
-            type: 'jpg',
-            name: 'firm_template.jpg',
-            changed: true,
-            membershipType: 'firm'
-        };
-        const graduateTemplate = {
-            fileText: graduageFileText,
-            type: 'jpg',
-            name: 'non_practicing_template.jpg',
-            changed: true,
-            membershipType: 'graduate'
-        };
-        result.push(individualTemplate);
-        result.push(firmTemplate);
-        result.push(graduateTemplate);
+        for (const f of this.files) {
+            const { name, membershipType } = f;
+            result.push({
+                fileText: '',
+                type: 'jpg',
+                name,
+                changed: false,
+                membershipType
+            });
+        }
         return result;
+    }
+    async getTemplate(name) {
+        const fileName = this.templates[name.toLocaleLowerCase()];
+        if (fileName) {
+            const fileText = await this.fileToBase64(`public/templates/originals/${fileName}`);
+            return {
+                fileText,
+                type: 'jpg',
+                name: fileName,
+                changed: false,
+                membershipType: name
+            };
+        }
+        return {
+            message: 'Unknown membership type',
+            status: 'FAILED'
+        };
     }
     async uploadTemplate(dto) {
         let message = 'Unknown membership type';

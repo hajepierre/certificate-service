@@ -1,5 +1,5 @@
 import { AckResponseDTO } from './dtos/ack.dto';
-import { Body, Controller, Get, Post, Query, Res, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Res, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { AppService } from './app.service';
 import { FileDTO } from './dtos/file.dto';
@@ -117,6 +117,17 @@ export class AppController {
   })
   async getTemplates(): Promise<FileDTO[]> {
     return await this.appService.getTemplates()
+  }
+
+  @Get('templates/:membershipType')
+  @UsePipes(new ValidationPipe())
+  @ApiResponse({
+    status: 200,
+    description: 'List of certificate templates',
+    type: FileDTO
+  })
+  async getTemplateByMembershipType(@Param('membershipType') membershipType: string): Promise<FileDTO | AckResponseDTO> {
+    return await this.appService.getTemplate(membershipType)
   }
 
   @Post('templates/upload')

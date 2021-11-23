@@ -67,6 +67,9 @@ let AppController = class AppController {
     async getTemplates() {
         return await this.appService.getTemplates();
     }
+    async getTemplateByMembershipType(membershipType) {
+        return await this.appService.getTemplate(membershipType);
+    }
     async uploadTemplate(dto) {
         return await this.appService.uploadTemplate(dto);
     }
@@ -152,6 +155,19 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "getTemplates", null);
+__decorate([
+    (0, common_1.Get)('templates/:membershipType'),
+    (0, common_1.UsePipes)(new common_1.ValidationPipe()),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'List of certificate templates',
+        type: file_dto_1.FileDTO
+    }),
+    __param(0, (0, common_1.Param)('membershipType')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "getTemplateByMembershipType", null);
 __decorate([
     (0, common_1.Post)('templates/upload'),
     (0, common_1.UsePipes)(new common_1.ValidationPipe()),
