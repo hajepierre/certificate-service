@@ -21,7 +21,7 @@ export class AppController {
   @ApiQuery({ name: 'discipline', required: true, description: 'Discipline' })
   @ApiQuery({ name: 'signatureDate', required: true, description: 'Certificate signature date' })
   @ApiQuery({ name: 'certificateNumber', required: true, description: 'Certificate number' })
-  getFirmCertificates(@Res() res,
+  async getFirmCertificates(@Res() res,
     @Query('companyName') companyName: string,
     @Query('registrationNumber') registrationNumber: string,
     @Query('councilMeetingDate') councilMeetingDate: string,
@@ -39,9 +39,18 @@ export class AppController {
       doneDate: signatureDate,
       certificateNumber
     }
-    this.appService.generatePracticingFirmCertificate(dto).then(buffer => {
-      res.send(buffer)
-    })
+    const retries = 5
+    let counter = 0;
+    let buffer = await this.appService.generatePracticingFirmCertificate(dto);
+    let len = buffer.toString().length
+    while (len === 9 && counter <= retries) {
+      buffer = await this.appService.generatePracticingFirmCertificate(dto);
+      len = buffer.toString().length
+      counter++;
+    }
+
+    res.send(buffer)
+
   }
 
   @Get('individual')
@@ -74,9 +83,18 @@ export class AppController {
       registrationNumber,
       certificateNumber
     }
-    this.appService.generatePracticingIndividualCertificate(dto).then(buffer => {
-      res.send(buffer)
-    })
+    const retries = 5
+    let counter = 0;
+    let buffer = await this.appService.generatePracticingIndividualCertificate(dto)
+    let len = buffer.toString().length
+
+    while (len === 9 && counter <= retries) {
+      buffer = await this.appService.generatePracticingIndividualCertificate(dto);
+      len = buffer.toString().length
+      counter++;
+    }
+
+    res.send(buffer)
   }
 
   @Get('graduates')
@@ -88,7 +106,7 @@ export class AppController {
   @ApiQuery({ name: 'discipline', required: true, description: 'Discipline' })
   @ApiQuery({ name: 'signatureDate', required: true, description: 'Certificate signature date' })
   @ApiQuery({ name: 'certificateNumber', required: true, description: 'Certificate number' })
-  generateGraduatesCertificates(@Res() res,
+  async generateGraduatesCertificates(@Res() res,
     @Query('year') year: string,
     @Query('fullName') fullName: string,
     @Query('membershipClassName') membershipClassName: string,
@@ -103,9 +121,18 @@ export class AppController {
       doneDate: signatureDate,
       certificateNumber
     }
-    this.appService.generateNonPracticingCertificate(dto).then(buffer => {
-      res.send(buffer)
-    })
+    const retries = 5
+    let counter = 0;
+    let buffer = await this.appService.generateNonPracticingCertificate(dto)
+    let len = buffer.toString().length
+
+    while (len === 9 && counter <= retries) {
+      buffer = await this.appService.generateNonPracticingCertificate(dto);
+      len = buffer.toString().length
+      counter++;
+    }
+
+    res.send(buffer)
   }
 
   @Get('templates')

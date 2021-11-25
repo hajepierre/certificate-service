@@ -22,7 +22,7 @@ let AppController = class AppController {
     constructor(appService) {
         this.appService = appService;
     }
-    getFirmCertificates(res, companyName, registrationNumber, councilMeetingDate, expiryDate, discipline, signatureDate, certificateNumber) {
+    async getFirmCertificates(res, companyName, registrationNumber, councilMeetingDate, expiryDate, discipline, signatureDate, certificateNumber) {
         const dto = {
             companyName,
             registrationNumber,
@@ -32,9 +32,16 @@ let AppController = class AppController {
             doneDate: signatureDate,
             certificateNumber
         };
-        this.appService.generatePracticingFirmCertificate(dto).then(buffer => {
-            res.send(buffer);
-        });
+        const retries = 5;
+        let counter = 0;
+        let buffer = await this.appService.generatePracticingFirmCertificate(dto);
+        let len = buffer.toString().length;
+        while (len === 9 && counter <= retries) {
+            buffer = await this.appService.generatePracticingFirmCertificate(dto);
+            len = buffer.toString().length;
+            counter++;
+        }
+        res.send(buffer);
     }
     async generateIndividualCertificates(res, year, fullName, membershipClassName, registrationNumber, discipline, expiryDate, signatureDate, certificateNumber) {
         const dto = {
@@ -47,11 +54,18 @@ let AppController = class AppController {
             registrationNumber,
             certificateNumber
         };
-        this.appService.generatePracticingIndividualCertificate(dto).then(buffer => {
-            res.send(buffer);
-        });
+        const retries = 5;
+        let counter = 0;
+        let buffer = await this.appService.generatePracticingIndividualCertificate(dto);
+        let len = buffer.toString().length;
+        while (len === 9 && counter <= retries) {
+            buffer = await this.appService.generatePracticingIndividualCertificate(dto);
+            len = buffer.toString().length;
+            counter++;
+        }
+        res.send(buffer);
     }
-    generateGraduatesCertificates(res, year, fullName, membershipClassName, discipline, signatureDate, certificateNumber) {
+    async generateGraduatesCertificates(res, year, fullName, membershipClassName, discipline, signatureDate, certificateNumber) {
         const dto = {
             year,
             fullName,
@@ -60,9 +74,16 @@ let AppController = class AppController {
             doneDate: signatureDate,
             certificateNumber
         };
-        this.appService.generateNonPracticingCertificate(dto).then(buffer => {
-            res.send(buffer);
-        });
+        const retries = 5;
+        let counter = 0;
+        let buffer = await this.appService.generateNonPracticingCertificate(dto);
+        let len = buffer.toString().length;
+        while (len === 9 && counter <= retries) {
+            buffer = await this.appService.generateNonPracticingCertificate(dto);
+            len = buffer.toString().length;
+            counter++;
+        }
+        res.send(buffer);
     }
     async getTemplates() {
         return await this.appService.getTemplates();
@@ -95,7 +116,7 @@ __decorate([
     __param(7, (0, common_1.Query)('certificateNumber')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, String, String, String, String, String, String, String]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], AppController.prototype, "getFirmCertificates", null);
 __decorate([
     (0, common_1.Get)('individual'),
@@ -141,7 +162,7 @@ __decorate([
     __param(6, (0, common_1.Query)('certificateNumber')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, String, String, String, String, String, String]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], AppController.prototype, "generateGraduatesCertificates", null);
 __decorate([
     (0, common_1.Get)('templates'),
