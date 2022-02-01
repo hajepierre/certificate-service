@@ -26,11 +26,13 @@
     "@nestjs/platform-express": "^7.5.1",
     "@nestjs/serve-static": "^2.2.2",
     "@nestjs/swagger": "^4.8.2",
+    "@nestjs/typeorm": "^7.1.5",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
     "dotenv": "^10.0.0",
     "moment": "^2.29.1",
     "pdfkit": "^0.12.3",
+    "pg": "^8.7.1",
     "qr-image": "^3.2.0",
     "qrcode": "^1.4.4",
     "randomstring": "^1.2.1",
@@ -38,6 +40,8 @@
     "rimraf": "^3.0.2",
     "rxjs": "^6.6.3",
     "swagger-ui-express": "^4.1.6",
+    "typeorm": "^0.2.41",
+    "typeorm-naming-strategies": "^2.0.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

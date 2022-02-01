@@ -130,6 +130,56 @@ let AppService = class AppService {
             });
         });
     }
+    generateCertificate(name, dto) {
+        return new Promise(async (resolve) => {
+            const { companyName, registrationNumber, expiryDate, councilMeetingDate, field, doneDate } = dto;
+            const qrBuffer = await this.generateQR(dto.certificateNumber);
+            const doc = new PDFDocument({ autoFirstPage: false });
+            const id = (0, uuid_1.v4)().replace(/-/g, '');
+            const fileName = `public/certificate_${id}.pdf`;
+            doc.pipe(fs.createWriteStream(fileName));
+            const img = doc.openImage('public/templates/firm_template.jpg');
+            doc.addPage({
+                size: [img.width, img.height],
+            });
+            doc.image(img, 0, 0);
+            const centerPoint = Math.floor(img.width / 2 - companyName.length * 19);
+            doc
+                .fillColor(this.color)
+                .fontSize(80)
+                .text(companyName, centerPoint, 1120);
+            doc
+                .fillColor(this.color)
+                .fontSize(75)
+                .text(registrationNumber, 1648, 1245);
+            doc.fillColor(this.color).fontSize(70).text(expiryDate, 2255, 1508);
+            doc
+                .fillColor(this.color)
+                .fontSize(60)
+                .text(councilMeetingDate, 1400, 1730);
+            doc.fillColor(this.color).fontSize(70).text(field, 2285, 1725);
+            doc.fillColor(this.color).fontSize(60).text(doneDate, 1920, 1895);
+            doc
+                .image(qrBuffer, 1630, 1995, { fit: [400, 400] })
+                .rect(1630, 1995, 400, 400)
+                .stroke();
+            doc.end();
+            fs.readFile(fileName, (error, data) => {
+                if (error) {
+                    console.log(`Error ${error}`);
+                }
+                else {
+                    try {
+                        fs.unlinkSync(fileName);
+                    }
+                    catch (error) {
+                        console.log(error);
+                    }
+                    resolve(data);
+                }
+            });
+        });
+    }
     generateNonPracticingCertificate(dto) {
         return new Promise(async (resolve) => {
             const { year, fullName, membershipType, field, doneDate } = dto;

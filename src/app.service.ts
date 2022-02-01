@@ -171,6 +171,75 @@ export class AppService {
     });
   }
 
+  generateCertificate(name: string, dto: any) {
+    return new Promise(async (resolve) => {
+      const { companyName, registrationNumber, expiryDate, councilMeetingDate, field, doneDate } = dto;
+
+      const qrBuffer = await this.generateQR(dto.certificateNumber);
+
+      const doc = new PDFDocument({ autoFirstPage: false });
+      const id = uuidv4().replace(/-/g, '');
+      const fileName = `public/certificate_${id}.pdf`;
+
+      doc.pipe(fs.createWriteStream(fileName));
+      const img = doc.openImage('public/templates/firm_template.jpg');
+
+      doc.addPage({
+        size: [img.width, img.height],
+      });
+
+      doc.image(img, 0, 0);
+
+      // Setting company name
+      const centerPoint = Math.floor(img.width / 2 - companyName.length * 19);
+      doc
+        .fillColor(this.color)
+        .fontSize(80)
+        .text(companyName, centerPoint, 1120);
+
+      // setting registration number
+      doc
+        .fillColor(this.color)
+        .fontSize(75)
+        .text(registrationNumber, 1648, 1245);
+
+      // setting expiry
+      doc.fillColor(this.color).fontSize(70).text(expiryDate, 2255, 1508);
+
+      // setting doneDate
+      doc
+        .fillColor(this.color)
+        .fontSize(60)
+        .text(councilMeetingDate, 1400, 1730);
+
+      // setting field
+      doc.fillColor(this.color).fontSize(70).text(field, 2285, 1725);
+
+      // setting done date
+      doc.fillColor(this.color).fontSize(60).text(doneDate, 1920, 1895);
+
+      // Adding qr code
+      doc
+        .image(qrBuffer, 1630, 1995, { fit: [400, 400] })
+        .rect(1630, 1995, 400, 400)
+        .stroke();
+      doc.end();
+
+      fs.readFile(fileName, (error, data) => {
+        if (error) {
+          console.log(`Error ${error}`);
+        } else {
+          try {
+            fs.unlinkSync(fileName);
+          } catch (error) {
+            console.log(error);
+          }
+          resolve(data);
+        }
+      });
+    });
+  }
+
   generateNonPracticingCertificate(dto: GraduateCertificate) {
     return new Promise(async (resolve) => {
       const { year, fullName, membershipType, field, doneDate } = dto;
@@ -255,8 +324,8 @@ export class AppService {
   async getTemplates(): Promise<FileDTO[]> {
     const result: FileDTO[] = [];
 
-    for(const f of this.files){
-      const {name, membershipType}=f;
+    for (const f of this.files) {
+      const { name, membershipType } = f;
       result.push({
         fileText: '',
         type: 'jpg',

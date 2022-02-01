@@ -16,6 +16,7 @@ export declare class AppService {
     }[];
     generatePracticingIndividualCertificate(dto: IndividualCertificate): Promise<unknown>;
     generatePracticingFirmCertificate(dto: FirmCertificate): Promise<unknown>;
+    generateCertificate(name: string, dto: any): Promise<unknown>;
     generateNonPracticingCertificate(dto: GraduateCertificate): Promise<unknown>;
     generateQR(docNumber: string): any;
     getTemplates(): Promise<FileDTO[]>;

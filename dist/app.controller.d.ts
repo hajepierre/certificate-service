@@ -1,13 +1,15 @@
-import { AckResponseDTO } from './dtos/ack.dto';
+import { CertificatesService } from './certificates.service';
+import { ResponseDTO } from './dtos/response.dto';
 import { AppService } from './app.service';
-import { FileDTO } from './dtos/file.dto';
+import { CreateCertificateTemplateDTO } from './dtos/create-certificate-template.dto';
+import { CertificatesTypeDTO } from './dtos/certificate-type.dto';
+import { CertificateTypeDTO } from './dtos/certificates-type.dto';
 export declare class AppController {
     private readonly appService;
-    constructor(appService: AppService);
-    getFirmCertificates(res: any, companyName: string, registrationNumber: string, councilMeetingDate: string, expiryDate: string, discipline: string, signatureDate: string, certificateNumber: string): Promise<void>;
-    generateIndividualCertificates(res: any, year: string, fullName: string, membershipClassName: string, registrationNumber: string, discipline: string, expiryDate: string, signatureDate: string, certificateNumber: string): Promise<void>;
-    generateGraduatesCertificates(res: any, year: string, fullName: string, membershipClassName: string, discipline: string, signatureDate: string, certificateNumber: string): Promise<void>;
-    getTemplates(): Promise<FileDTO[]>;
-    getTemplateByMembershipType(membershipType: string): Promise<FileDTO | AckResponseDTO>;
-    uploadTemplate(dto: FileDTO): Promise<AckResponseDTO>;
+    private readonly certificatesService;
+    constructor(appService: AppService, certificatesService: CertificatesService);
+    getCertificateTypes(): Promise<CertificatesTypeDTO[]>;
+    addCertificateType(dto: CertificateTypeDTO): Promise<CertificatesTypeDTO>;
+    configureTemplate(dto: CreateCertificateTemplateDTO): Promise<ResponseDTO>;
+    generateCertificate(name: string, res: any, dto: any): Promise<unknown>;
 }
