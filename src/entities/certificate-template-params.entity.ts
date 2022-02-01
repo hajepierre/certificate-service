@@ -24,8 +24,10 @@ export class CertificateTemplateParams extends Base {
     yCoordinate: number;
     @Column({ nullable: true })
     color: string;
+    // @Column({ nullable: true })
+    // font: string;
     @Column({ nullable: true })
-    font: string;
+    fontSize: number;
     @Column({ nullable: true })
     width: number;
     @Column({ nullable: true })

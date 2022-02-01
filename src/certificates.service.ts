@@ -8,6 +8,7 @@ import * as fs from 'fs';
 import { CertificatesDTO } from "./dtos/certificates.dto";
 import { ResponseDTO } from "./dtos/response.dto";
 import { CertificatesTypeDTO } from "./dtos/certificate-type.dto";
+import { CertificateTemplateParams } from "./entities/certificate-template-params.entity";
 
 @Injectable()
 export class CertificatesService {
@@ -48,6 +49,7 @@ export class CertificatesService {
                     year: '',
                     fullName: '',
                     membershipClassName: '',
+                    certificateNumber: '',
                     discipline: '',
                     signatureDay: '',
                     signatureMonth: '',
@@ -63,6 +65,7 @@ export class CertificatesService {
                     year: '',
                     fullName: '',
                     membershipClassName: '',
+                    certificateNumber: '',
                     discipline: '',
                     signatureDay: '',
                     signatureMonth: '',
@@ -149,10 +152,10 @@ export class CertificatesService {
         return null;
     }
 
-    async getTemplateParamsById(id: string) {
+    async getTemplateParamsById(id: string): Promise<CertificateTemplateParams[]> {
         const template = await this.certificateTemplateRepository.findById(id)
         if (template) {
-            return this.certificateTemplateParamsRepository.findByCertificateId(id)
+            return this.certificateTemplateParamsRepository.findByTemplateId(id)
         }
         return null;
     }

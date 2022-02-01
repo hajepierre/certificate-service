@@ -5,8 +5,8 @@ import { EntityRepository, Repository } from "typeorm";
 @EntityRepository(CertificateTemplateParams)
 export class CertificateTemplateParamsRepository extends Repository<CertificateTemplateParams>{
     async add(dto: CertificatesParamDTO) {
-        const { templateId, paramName, xCoordinate, yCoordinate, color, font } = dto;
-        const temp = await this.findByCertificateId(dto.templateId);
+        const { templateId, paramName, xCoordinate, yCoordinate, color, fontSize } = dto;
+        const temp = await this.findByTemplateIdAndParamName(dto.templateId, paramName);
         if (temp) {
             const id = temp.id;
             const data = {
@@ -14,7 +14,7 @@ export class CertificateTemplateParamsRepository extends Repository<CertificateT
                 xCoordinate,
                 yCoordinate,
                 color,
-                font
+                fontSize
             }
             await this.update({ id }, data);
             return await this.findById(id)
@@ -26,13 +26,16 @@ export class CertificateTemplateParamsRepository extends Repository<CertificateT
             xCoordinate,
             yCoordinate,
             color,
-            font
+            fontSize
         });
         return await this.save(entity);
     }
 
-    async findByCertificateId(id: string) {
-        return await this.findOne({ where: { certificate: { id } }, order: { createdAt: 'DESC' } })
+    async findByTemplateId(id: string) {
+        return await this.find({ where: { template: { id } } })
+    }
+    async findByTemplateIdAndParamName(id: string, name: string) {
+        return await this.findOne({ where: { template: { id }, paramName: name } })
     }
 
     async findById(id: string) {

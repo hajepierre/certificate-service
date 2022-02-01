@@ -4,7 +4,7 @@ export interface CertificatesParamDTO {
     xCoordinate: number;
     yCoordinate: number;
     color?: string;
-    font?: string;
+    fontSize?: number;
     width?: number;
     breadth?: number;
 }
