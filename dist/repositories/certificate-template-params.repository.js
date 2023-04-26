@@ -12,8 +12,8 @@ const certificate_template_params_entity_1 = require("../entities/certificate-te
 const typeorm_1 = require("typeorm");
 let CertificateTemplateParamsRepository = class CertificateTemplateParamsRepository extends typeorm_1.Repository {
     async add(dto) {
-        const { templateId, paramName, xCoordinate, yCoordinate, color, font } = dto;
-        const temp = await this.findByCertificateId(dto.templateId);
+        const { templateId, paramName, xCoordinate, yCoordinate, color, fontSize } = dto;
+        const temp = await this.findByTemplateIdAndParamName(dto.templateId, paramName);
         if (temp) {
             const id = temp.id;
             const data = {
@@ -21,7 +21,7 @@ let CertificateTemplateParamsRepository = class CertificateTemplateParamsReposit
                 xCoordinate,
                 yCoordinate,
                 color,
-                font
+                fontSize
             };
             await this.update({ id }, data);
             return await this.findById(id);
@@ -32,12 +32,15 @@ let CertificateTemplateParamsRepository = class CertificateTemplateParamsReposit
             xCoordinate,
             yCoordinate,
             color,
-            font
+            fontSize
         });
         return await this.save(entity);
     }
-    async findByCertificateId(id) {
-        return await this.findOne({ where: { certificate: { id } }, order: { createdAt: 'DESC' } });
+    async findByTemplateId(id) {
+        return await this.find({ where: { template: { id } } });
+    }
+    async findByTemplateIdAndParamName(id, name) {
+        return await this.findOne({ where: { template: { id }, paramName: name } });
     }
     async findById(id) {
         return await this.findOne({ where: { id } });

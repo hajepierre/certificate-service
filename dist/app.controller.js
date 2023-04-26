@@ -25,6 +25,7 @@ let AppController = class AppController {
     constructor(appService, certificatesService) {
         this.appService = appService;
         this.certificatesService = certificatesService;
+        this.logger = new common_1.Logger("AppController");
     }
     async getCertificateTypes() {
         return await this.certificatesService.getCertificateTypes();
@@ -35,8 +36,24 @@ let AppController = class AppController {
     async configureTemplate(dto) {
         return await this.certificatesService.configureTemplate(dto);
     }
-    async generateCertificate(name, res, dto) {
-        return this.appService.generateCertificate(name, dto);
+    async generateCertificate(dto, name, res) {
+        const template = await this.certificatesService.getCertificateByTypeName(name);
+        if (template) {
+            const retries = 5;
+            let counter = 0;
+            const params = await this.certificatesService.getTemplateParamsById(template.id);
+            let buffer = await this.appService.generateCertificate(template.fileName, params, dto);
+            let len = buffer.toString().length;
+            while (len === 9 && counter <= retries) {
+                buffer = await this.appService.generateCertificate(template.fileName, params, dto);
+                len = buffer.toString().length;
+                counter++;
+            }
+            res.send(buffer);
+        }
+        else {
+            res.status(404).send({ error: `No template was found associted with certificate type: ${name}` });
+        }
     }
 };
 __decorate([
@@ -78,18 +95,18 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "configureTemplate", null);
 __decorate([
-    (0, common_1.Post)('/certificate-types/:name'),
+    (0, common_1.Post)('certificate-types/:name'),
     (0, common_1.UsePipes)(new common_1.ValidationPipe()),
     (0, swagger_1.ApiResponse)({
         status: 200,
         description: 'Configure template',
         type: response_dto_1.ResponseDTO
     }),
-    __param(0, (0, common_1.Param)('name')),
-    __param(1, (0, common_1.Res)()),
-    __param(2, (0, common_1.Body)()),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Param)('name')),
+    __param(2, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object, Object]),
+    __metadata("design:paramtypes", [Object, String, Object]),
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "generateCertificate", null);
 AppController = __decorate([

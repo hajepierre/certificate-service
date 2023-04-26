@@ -15,224 +15,52 @@ const qr = require("qr-image");
 let AppService = class AppService {
     constructor() {
         this.color = '#0066FF';
-        this.templates = {
-            individual: 'individual_template.jpg',
-            firm: 'firm_template.jpg',
-            graduate: 'non_practicing_template.jpg'
-        };
-        this.files = [
-            {
-                name: 'individual_template.jpg',
-                membershipType: 'individual'
-            },
-            {
-                name: 'firm_template.jpg',
-                membershipType: 'firm'
-            },
-            {
-                name: 'non_practicing_template.jpg',
-                membershipType: 'graduate'
+        this.fontSize = 12;
+    }
+    generateCertificate(templateFileName, params, dto) {
+        return new Promise(async (resolve) => {
+            const qrBuffer = await this.generateQR(dto.certificateNumber);
+            if (params.length > 0) {
+                const doc = new PDFDocument({ autoFirstPage: false });
+                const id = (0, uuid_1.v4)().replace(/-/g, '');
+                const fileName = `public/certificate_${id}.pdf`;
+                doc.pipe(fs.createWriteStream(fileName));
+                const img = doc.openImage(`public/templates/${templateFileName}`);
+                doc.addPage({
+                    size: [img.width, img.height],
+                });
+                doc.image(img, 0, 0);
+                for (const p of params) {
+                    if (p.paramName === 'qr') {
+                        doc
+                            .image(qrBuffer, p.xCoordinate, p.yCoordinate, { fit: [p.width, p.breadth] })
+                            .rect(p.xCoordinate, p.yCoordinate, p.width, p.breadth)
+                            .stroke();
+                    }
+                    doc
+                        .fillColor(p.color || this.color)
+                        .fontSize(p.fontSize || this.fontSize)
+                        .text(dto[p.paramName], p.xCoordinate, p.yCoordinate);
+                }
+                doc.end();
+                fs.readFile(fileName, (error, data) => {
+                    if (error) {
+                        console.log(`Error ${error}`);
+                    }
+                    else {
+                        try {
+                            fs.unlinkSync(fileName);
+                        }
+                        catch (error) {
+                            console.log(error);
+                        }
+                        resolve(data);
+                    }
+                });
             }
-        ];
-    }
-    generatePracticingIndividualCertificate(dto) {
-        return new Promise(async (resolve) => {
-            const { year, fullName, membershipType, field, registrationNumber, expiryDate, doneDate } = dto;
-            const qrBuffer = await this.generateQR(dto.certificateNumber);
-            const doc = new PDFDocument({ autoFirstPage: false });
-            const id = (0, uuid_1.v4)().replace(/-/g, '');
-            const fileName = `public/certificate_${id}.pdf`;
-            doc.pipe(fs.createWriteStream(fileName));
-            const img = doc.openImage('public/templates/individual_template.jpg');
-            doc.addPage({
-                size: [img.width, img.height],
-            });
-            doc.image(img, 0, 0);
-            doc.fillColor(this.color).fontSize(90).text(year, 2755, 757);
-            const centerPoint = Math.floor(img.width / 2 - fullName.length * 19);
-            doc.fillColor(this.color).fontSize(80).text(fullName, centerPoint, 1050);
-            doc.fillColor(this.color).fontSize(80).text(membershipType, 1355, 1160);
-            doc.fillColor(this.color).fontSize(70).text(field, 1655, 1282);
-            doc
-                .fillColor(this.color)
-                .fontSize(75)
-                .text(registrationNumber, 1848, 1395);
-            doc.fillColor(this.color).fontSize(50).text(expiryDate, 1895, 1740);
-            doc.fillColor(this.color).fontSize(60).text(doneDate, 1910, 1895);
-            doc
-                .image(qrBuffer, 1630, 1995, { fit: [400, 400] })
-                .rect(1630, 1995, 400, 400)
-                .stroke();
-            doc.end();
-            fs.readFile(fileName, (error, data) => {
-                if (error) {
-                    console.log(`Error ${error}`);
-                }
-                else {
-                    try {
-                        fs.unlinkSync(fileName);
-                    }
-                    catch (error) {
-                        console.log(error);
-                    }
-                    resolve(data);
-                }
-            });
-        });
-    }
-    generatePracticingFirmCertificate(dto) {
-        return new Promise(async (resolve) => {
-            const { companyName, registrationNumber, expiryDate, councilMeetingDate, field, doneDate } = dto;
-            const qrBuffer = await this.generateQR(dto.certificateNumber);
-            const doc = new PDFDocument({ autoFirstPage: false });
-            const id = (0, uuid_1.v4)().replace(/-/g, '');
-            const fileName = `public/certificate_${id}.pdf`;
-            doc.pipe(fs.createWriteStream(fileName));
-            const img = doc.openImage('public/templates/firm_template.jpg');
-            doc.addPage({
-                size: [img.width, img.height],
-            });
-            doc.image(img, 0, 0);
-            const centerPoint = Math.floor(img.width / 2 - companyName.length * 19);
-            doc
-                .fillColor(this.color)
-                .fontSize(80)
-                .text(companyName, centerPoint, 1120);
-            doc
-                .fillColor(this.color)
-                .fontSize(75)
-                .text(registrationNumber, 1648, 1245);
-            doc.fillColor(this.color).fontSize(70).text(expiryDate, 2255, 1508);
-            doc
-                .fillColor(this.color)
-                .fontSize(60)
-                .text(councilMeetingDate, 1400, 1730);
-            doc.fillColor(this.color).fontSize(70).text(field, 2285, 1725);
-            doc.fillColor(this.color).fontSize(60).text(doneDate, 1920, 1895);
-            doc
-                .image(qrBuffer, 1630, 1995, { fit: [400, 400] })
-                .rect(1630, 1995, 400, 400)
-                .stroke();
-            doc.end();
-            fs.readFile(fileName, (error, data) => {
-                if (error) {
-                    console.log(`Error ${error}`);
-                }
-                else {
-                    try {
-                        fs.unlinkSync(fileName);
-                    }
-                    catch (error) {
-                        console.log(error);
-                    }
-                    resolve(data);
-                }
-            });
-        });
-    }
-    generateCertificate(name, dto) {
-        return new Promise(async (resolve) => {
-            const { companyName, registrationNumber, expiryDate, councilMeetingDate, field, doneDate } = dto;
-            const qrBuffer = await this.generateQR(dto.certificateNumber);
-            const doc = new PDFDocument({ autoFirstPage: false });
-            const id = (0, uuid_1.v4)().replace(/-/g, '');
-            const fileName = `public/certificate_${id}.pdf`;
-            doc.pipe(fs.createWriteStream(fileName));
-            const img = doc.openImage('public/templates/firm_template.jpg');
-            doc.addPage({
-                size: [img.width, img.height],
-            });
-            doc.image(img, 0, 0);
-            const centerPoint = Math.floor(img.width / 2 - companyName.length * 19);
-            doc
-                .fillColor(this.color)
-                .fontSize(80)
-                .text(companyName, centerPoint, 1120);
-            doc
-                .fillColor(this.color)
-                .fontSize(75)
-                .text(registrationNumber, 1648, 1245);
-            doc.fillColor(this.color).fontSize(70).text(expiryDate, 2255, 1508);
-            doc
-                .fillColor(this.color)
-                .fontSize(60)
-                .text(councilMeetingDate, 1400, 1730);
-            doc.fillColor(this.color).fontSize(70).text(field, 2285, 1725);
-            doc.fillColor(this.color).fontSize(60).text(doneDate, 1920, 1895);
-            doc
-                .image(qrBuffer, 1630, 1995, { fit: [400, 400] })
-                .rect(1630, 1995, 400, 400)
-                .stroke();
-            doc.end();
-            fs.readFile(fileName, (error, data) => {
-                if (error) {
-                    console.log(`Error ${error}`);
-                }
-                else {
-                    try {
-                        fs.unlinkSync(fileName);
-                    }
-                    catch (error) {
-                        console.log(error);
-                    }
-                    resolve(data);
-                }
-            });
-        });
-    }
-    generateNonPracticingCertificate(dto) {
-        return new Promise(async (resolve) => {
-            const { year, fullName, membershipType, field, doneDate } = dto;
-            const qrBuffer = await this.generateQR(dto.certificateNumber);
-            const doc = new PDFDocument({ autoFirstPage: false });
-            const id = (0, uuid_1.v4)().replace(/-/g, '');
-            const fileName = `public/certificate_${id}.pdf`;
-            doc.pipe(fs.createWriteStream(fileName));
-            const img = doc.openImage('public/templates/non_practicing_template.jpg');
-            doc.addPage({
-                size: [img.width, img.height],
-            });
-            doc.image(img, 0, 0);
-            doc.
-                fillColor(this.color)
-                .fontSize(90)
-                .text(year, 2850, 763);
-            const centerPoint = Math.floor((img.width / 2) - (fullName.length * 19));
-            doc.
-                fillColor(this.color)
-                .fontSize(80)
-                .text(fullName, centerPoint, 1130);
-            doc.
-                fillColor(this.color)
-                .fontSize(80)
-                .text(membershipType, 1785, 1255);
-            doc.
-                fillColor(this.color)
-                .fontSize(70)
-                .text(field, 1600, 1381);
-            doc.
-                fillColor(this.color)
-                .fontSize(60)
-                .text(doneDate, 1910, 1895);
-            doc
-                .image(qrBuffer, 1630, 1995, { fit: [400, 400] })
-                .rect(1630, 1995, 400, 400)
-                .stroke();
-            doc.end();
-            fs.readFile(fileName, (error, data) => {
-                if (error) {
-                    console.log(`Error ${error}`);
-                }
-                else {
-                    try {
-                        fs.unlinkSync(fileName);
-                    }
-                    catch (error) {
-                        console.log(error);
-                    }
-                    resolve(data);
-                }
-            });
+            else {
+                resolve(null);
+            }
         });
     }
     generateQR(docNumber) {
@@ -241,53 +69,6 @@ let AppService = class AppService {
             ec_level: 'H',
             margin: 1,
         });
-    }
-    async getTemplates() {
-        const result = [];
-        for (const f of this.files) {
-            const { name, membershipType } = f;
-            result.push({
-                fileText: '',
-                type: 'jpg',
-                name,
-                changed: false,
-                membershipType
-            });
-        }
-        return result;
-    }
-    async getTemplate(name) {
-        const fileName = this.templates[name.toLocaleLowerCase()];
-        if (fileName) {
-            const fileText = await this.fileToBase64(`public/templates/originals/${fileName}`);
-            return {
-                fileText,
-                type: 'jpg',
-                name: fileName,
-                changed: false,
-                membershipType: name
-            };
-        }
-        return {
-            message: 'Unknown membership type',
-            status: 'FAILED'
-        };
-    }
-    async uploadTemplate(dto) {
-        let message = 'Unknown membership type';
-        let status = 'FAILED';
-        const fileName = this.templates[dto.membershipType.toLocaleLowerCase()];
-        if (fileName) {
-            try {
-                this.decodeAndSave(dto.fileText, `public/templates/${fileName}`);
-                message = 'Template is upload successfully';
-                status = 'SUCCESS';
-            }
-            catch (error) {
-                message = error;
-            }
-        }
-        return { message, status };
     }
     async fileToBase64(fileName) {
         var bitmap = await fs.readFileSync(fileName);

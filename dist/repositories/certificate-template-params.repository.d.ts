@@ -3,6 +3,7 @@ import { CertificateTemplateParams } from "src/entities/certificate-template-par
 import { Repository } from "typeorm";
 export declare class CertificateTemplateParamsRepository extends Repository<CertificateTemplateParams> {
     add(dto: CertificatesParamDTO): Promise<CertificateTemplateParams>;
-    findByCertificateId(id: string): Promise<CertificateTemplateParams>;
+    findByTemplateId(id: string): Promise<CertificateTemplateParams[]>;
+    findByTemplateIdAndParamName(id: string, name: string): Promise<CertificateTemplateParams>;
     findById(id: string): Promise<CertificateTemplateParams>;
 }

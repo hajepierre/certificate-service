@@ -46,6 +46,7 @@ let CertificatesService = class CertificatesService {
                 year: '',
                 fullName: '',
                 membershipClassName: '',
+                certificateNumber: '',
                 discipline: '',
                 signatureDay: '',
                 signatureMonth: '',
@@ -59,6 +60,7 @@ let CertificatesService = class CertificatesService {
                 year: '',
                 fullName: '',
                 membershipClassName: '',
+                certificateNumber: '',
                 discipline: '',
                 signatureDay: '',
                 signatureMonth: '',
@@ -136,7 +138,7 @@ let CertificatesService = class CertificatesService {
     async getTemplateParamsById(id) {
         const template = await this.certificateTemplateRepository.findById(id);
         if (template) {
-            return this.certificateTemplateParamsRepository.findByCertificateId(id);
+            return this.certificateTemplateParamsRepository.findByTemplateId(id);
         }
         return null;
     }

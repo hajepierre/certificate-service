@@ -1,7 +1,7 @@
 import { CertificatesService } from './certificates.service';
 import { ResponseDTO } from './dtos/response.dto';
-import { Body, Controller, Get, Param, Post, Res, UsePipes, ValidationPipe } from '@nestjs/common';
-import {  ApiResponse } from '@nestjs/swagger';
+import { Body, Controller, Get, Logger, Param, Post, Res, UsePipes, ValidationPipe } from '@nestjs/common';
+import { ApiResponse } from '@nestjs/swagger';
 import { AppService } from './app.service';
 import { CreateCertificateTemplateDTO } from './dtos/create-certificate-template.dto';
 import { CertificatesTypeDTO } from './dtos/certificate-type.dto';
@@ -10,6 +10,8 @@ import { CertificateTemplateParams } from './entities/certificate-template-param
 
 @Controller('certificates')
 export class AppController {
+
+  logger = new Logger("AppController");
   constructor(private readonly appService: AppService, private readonly certificatesService: CertificatesService) { }
 
   @Get('certificate-types')
@@ -45,14 +47,14 @@ export class AppController {
     return await this.certificatesService.configureTemplate(dto)
   }
 
-  @Post('/certificate-types/:name')
+  @Post('certificate-types/:name')
   @UsePipes(new ValidationPipe())
   @ApiResponse({
     status: 200,
     description: 'Configure template',
     type: ResponseDTO
   })
-  async generateCertificate(@Param('name') name: string, @Res() res, @Body() dto: any) {
+  async generateCertificate(@Body() dto: any, @Param('name') name: string, @Res() res) {
     const template = await this.certificatesService.getCertificateByTypeName(name);
     if (template) {
       const retries = 5
@@ -69,6 +71,8 @@ export class AppController {
       }
       // Sending response
       res.send(buffer)
+    }else{
+      res.status(404).send({error:`No template was found associted with certificate type: ${name}`})
     }
   }
 }
